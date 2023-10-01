@@ -1,0 +1,37 @@
+KinD is a tool for "Kubernetes in Docker". It supports multi-node clusters.
+
+Documentation:
+
+- https://kind.sigs.k8s.io/
+
+Prerequisites:
+
+- Docker Desktop is installed
+
+Install "kind" on Windows using:
+
+- "choco install kind" (must have Chocolately installed)
+- "kind --version" to verify installation
+
+Create a YAML file:
+
+- see "kind.yml" which defines a 4-node cluster named "tkb" ("The Kubernetes Book") with 1 control plane node and 3 worker nodes; it enables dual-stack networking (IPv4 and IPv6)
+
+Start ("create") the cluster:
+
+- Make sure Docker Desktop is running!  If "kind" commands don't do anything (and don't give any error messages), this is the first thing to check.
+- "kind create cluster --config=kind.yml"
+- note that the "kubectl context" gets set to "kind-tkb" (it prepends "kind-")
+- verify that the cluster was created successfully:
+  - "kind get clusters"
+    - "tkb"
+  - "kubectl get notes"
+    --> shows notes
+  - can also monitor in Docker Desktop
+
+To stop the cluster:
+
+- "kind delete clusters tkb"
+
+
+--> note: an alternative to "kind" is "K3d" which uses a stripped-down version of Kubernetes, K3s, which is bundled with Docker Desktop
