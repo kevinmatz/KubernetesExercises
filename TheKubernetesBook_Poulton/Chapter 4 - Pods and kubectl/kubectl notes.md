@@ -1,31 +1,31 @@
 # Notes on kubectl command
 
 - See pod manifest file: pod.yml
--- Defines a pod named `hello-pod` with one container, `hello-ctr`
+  - Defines a pod named `hello-pod` with one container, `hello-ctr`
 - `kubectl apply -f pod.yml`
--- Applies the specification "directly", i.e., takes actions to move from the "observed state" to the "desired state" (so it creates/instantiates/runs a pod as per the pod manifest file, without using a controller)
+  - Applies the specification "directly", i.e., takes actions to move from the "observed state" to the "desired state" (so it creates/instantiates/runs a pod as per the pod manifest file, without using a controller)
 - `kubectl get pods`
--- Shows status
+  - Shows status
 - `kubectl get pods --watch -o wide`
 - `kubectl get pods hello-pod -o yaml`
--- Shows full YAML description of pod
+  - Shows full YAML description of pod
 - `kubectl describe pods hello-pod`
--- Gives details including the ordering of containers in the pod (which one is considered the "first", etc.)
+  - Gives details including the ordering of containers in the pod (which one is considered the "first", etc.)
 - `kubectl logs hello-pod`
--- Shows logs from `hello-pod` pod
+  - Shows logs from `hello-pod` pod
 - `kubectl logs hello-pod --container syncer`
--- Shows logs from the `syncer` container within the `hello-pod` pod
+  - Shows logs from the `syncer` container within the `hello-pod` pod
 - `kubectl exec <pod-name> -- <command>`
--- Runs a command in a pod
---- Example: `kubectl exec hello-pod -- ps`
+  - Runs a command in a pod
+    - Example: `kubectl exec hello-pod -- ps`
 - `kubectl exec -it hello-pod -- sh`
--- Logs in to the first container in a pod and runs a shell (if there are multiple containers in the pod, you need to use `--container <container-name>`)
---- `-it` flags make the session interactive and connect STDIN and STDOUT in your terminal to STDIN and STDOUT in the container
+  - Logs in to the first container in a pod and runs a shell (if there are multiple containers in the pod, you need to use `--container <container-name>`)
+    - `-it` flags make the session interactive and connect STDIN and STDOUT in your terminal to STDIN and STDOUT in the container
 - `kubectl edit pod hello-pod`
--- Lets you edit some attributes, though because pods are designed to be immutable, you cannot change most things (such as pod name, container name, container port, etc.)
+  - Lets you edit some attributes, though because pods are designed to be immutable, you cannot change most things (such as pod name, container name, container port, etc.)
 - `kubectl delete pod <pod-name>` (or `delete pods`)
--- Deletes (stops and removes) a running pod
+  - Deletes (stops and removes) a running pod
 - `kubectl get services`
--- Shows all running services
+  - Shows all running services
 - `kubectl delete service <service-name>`
--- Deletes (stops and removes) a running service
+  - Deletes (stops and removes) a running service
