@@ -1,8 +1,9 @@
 # Notes on Kubernetes namespaces
 
-- Namespaces in Kubernetes can be used to divide up resources within a cluster.
-- Each namespace can have its own users, RBAC rules, and resource quotas, and accounting can be done by namespace.
-- Namespaces are not intended as a "strong workload isolation boundary", so you wouldn't want to use namespaces as a way to have different customers/clients/tenants in the same cluster (multitenancy), as those resources could "see" each other and a malicious resource could access the other ones.
+- Namespaces in Kubernetes can be used to divide up resources within a cluster -- to create a *virtual cluster*.
+- Resource quotas and policies can be applied to a namespace / virtual cluster.
+- Each namespace can also have its own users and RBAC rules/permissions, and accounting can be done by namespace.
+- Namespaces are not intended as a "strong workload isolation boundary" or as a way to "isolate hostile workloads". You wouldn't want to use namespaces as a way to have different competing customers/clients/tenants in the same cluster (multitenancy), as those resources could "see" each other and a malicious resource could access the other ones.
 - Pre-created namespaces are:
   - `default`: if you create resources without specifying a namespace, they go here
   - `kube-system`: control-plane components run here
@@ -34,3 +35,4 @@ metadata:
   name: the-bus
 (etc.)
 ```
+
