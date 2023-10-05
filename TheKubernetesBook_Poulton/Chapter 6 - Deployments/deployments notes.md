@@ -97,16 +97,9 @@ spec:
   - But the book does not show an example of how to do a rollback declaratively
     - I guess if you have kept the previous version of the deployment manifest file in version control, you can retrieve it and apply it to the API server?
       - But does that re-use the previous ReplicaSet???
-  
-
-
-
-
-
-
-
-
-
-
-
-
+- Rollout behavior vis-a-vis labels:
+  - In older versions of Kubernetes, a Deployment would take over management of existing static Pods if they had the same labels as the label(s) in the Deployment
+  - Now, this does not happen because Kubernetes applies a system-generated `pod-template-hash` label to Pods created by a Deployment/ReplicaSet so that the Deployment only manages the Pods it has created
+- **Cleanup**
+  - `kubectl delete -f deploy.yml`
+  - `kubectl delete -f svc.yml`
