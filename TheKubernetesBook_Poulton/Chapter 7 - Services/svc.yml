@@ -1,0 +1,20 @@
+# This manifest defines a Kubernetes Service named "svc-test"
+# that will expose port 30001 for external access. The service
+# will forward traffic from port 30001 to port 8080 on the Pods
+# that have the label "chapter: services". The purpose of this
+# service is to provide external access to the Pods and ensure
+# that only healthy Pods receive traffic.
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-test            # This is the name that will be registered with DNS
+spec:
+  type: NodePort
+  ports:
+  - port: 8080              # Listen internally (within the cluster) on port 8080
+    nodePort: 30001         # Expose port 30001 for external access
+    targetPort: 8080        # Tell Kubernetes to forward traffic from nodePort to port 8080 on the Pods
+    protocol: TCP
+  selector:
+    chapter: services       # Select the Pods that will receive the traffic (only healthy Pods will receive traffic)
