@@ -10,6 +10,7 @@
 
 - **NodePort** Services allow external clients to access a dedicated port on any cluster node (Pod), and it redirects as follows:
   - If an external client accesses port 30050 on a node, it is redirected to the Service node, which then uses the EndpointSlices to select a Pod and redirects to it (using the `targetPort` port if specified)
+  - NodePorts only work on ports 30000..32767 "and require knowledge of node names or IPs"
 
 ![](NodePort%20diagram.png)
 
