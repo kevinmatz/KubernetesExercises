@@ -24,8 +24,9 @@
   - For scaling operations, if a Pod is deleted as part of a scale-down, its volume will survive and later scale-ups will attach the new Pods to volumes that match their names
 
 - Pod failures
-  - If a Pod fails, the controller will restart a new Pod to replace it, but if the failed Pod then recovers after it has been replaced, it would connect to the same volume and two Pods writing to the same volume will result in data corruption
-  - So Kubernetes is careful; "manual intervention is needed before Kubernetes will replace Pods that it *thinks* have failed" (need more detail on this)
+  - If a Pod fails, and Kubernetes is absolutely certain that the Pod failed or was terminated, the controller will restart a new Pod to replace it
+  - If a Pod were to fail but Kubernetes could not be absolutely certain (it's not sure if there is a network partition or the Pod is rebooting, etc.), there would be the chance that, if the failed Pod eventually recovered after Kubernetes were to replace it with a new one, it would connect to the same volume and two Pods writing to the same volume would result in data corruption
+    - So Kubernetes is careful; "manual intervention is needed before Kubernetes will replace Pods that it *thinks* have failed" (but cannot 100% be certain)
 
 - Headless services
   - If other parts of the application need to be able to connect to individual Pods, you can configure a **headless service** in the StatefulSet definition
@@ -139,5 +140,24 @@ spec:
   - this shows the fully-qualified domain names `tkb-sts-0.dullahan.default.svc.cluster.local`, etc., for each Pod, and the IP addresses for each
 - Applications can use this method to discover the currently-running Pods in the StatefulSet, and connect to them; applications need to know the name of the headless service, i.e., `dullahan.default.svc.cluster.local`
 
+- When the StatefulSet is scaled down, the Pods are terminated but the PVCs are not
+- Edit the abov StatefulSet YAML definition and change the replica count from 3 to 2 and redeploy it
+- `kubectl get sts tkb-sts` and `kubectl get pods` show 2 Pods
+- `kuebctl get pvc` shows that PVC `webroot-tkb-sts-2` is still available (and status shows as "Bound")
+- Change replicas back to 3 and redeploy and run the above commands again; there are 3 Pods and the new Pod `tkb-sts-2` has mounted the existing `webroot-tkb-sts-2` volume
+- If you delete a Pod (simulating a failure), using `kubectl get pods --watch` you can see the Pod being terminated, and then a new one with the same name is started (goes through states `Pending`, `ContainerCreating`, `Running`)
+  - Kubernetes created a new Pod in this case because it was 100% certain about the Pod's "failure" through the intentional termination; otherwise, manual recovery/intervention would be needed
 
+- More control over starting/stopping of Pods can be achieved using `spec.podManagementPolicy`
+  - `Parallel` starts/stops Pods simultaneously instead of waiting for each to be ready or to terminate
 
+- **Rollouts**
+  - If you change the container image(s), the StatefulSet controller will replace all the old Pods with new ones, but one at a time, and it starts with the highest-numbered Pod and works down
+
+- **Deleting StatefulSets**
+  - If your app is sensitive to ordered shutdown of these Pods, scale the replicas to 0
+    - Edit and post the YAML file, or, do it imperatively like this:
+      - `kubectl scale sts tkb-sts --replicas=0`
+  - Then you can delete: `kubectl delete sts tkb-sts` or `kubectl delete -f <YAML file>`
+  - This will remove all the DNS SRV records
+  - The headless Service, the volumes, the StorageClass, and the "jump Pod" will still exist; generally you would want to preserve the volumes for a production app, but beware that volumes would continue to incur costs on the cloud platform
