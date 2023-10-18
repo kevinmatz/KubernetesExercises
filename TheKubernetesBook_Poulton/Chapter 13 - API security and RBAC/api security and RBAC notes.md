@@ -56,13 +56,15 @@ rules:
 
 - A role definition always applies to a single specified Namespace
 - `apiGroups` and `resources` define the object
+  - To see all resources supported on your cluster, and the `apiGroup` for each, run:
+    - `kubectl api-resources --sort-by name -o wide`
 - `verbs` define the actions
+  - `create` = POST
+  - `get`, `list`, `watch` = GET
+  - `update` = PUT
+  - `patch` = PATCH
+  - `delete` = DELETE
 - Full documentation: [https://kubernetes.io/docs/reference/access-authn-authz/rbac/](https://kubernetes.io/docs/reference/access-authn-authz/rbac/)
-
-- **TODO: Finish documenting this section**
-
-
-
 
 - **RoleBindings** bind a Role to users. This example grants the `read-deployments` role to a user called `sky`:
 
@@ -83,3 +85,15 @@ roleRef:
 ```
 
 - If both of the above are deployed to a cluster, an authenticated user `sky` will be able to run commands like `kubectl get deployments -n shield`
+
+- An asterisk can be used as a wildcard:
+
+```
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+```
+
+
+
