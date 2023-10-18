@@ -95,5 +95,20 @@ rules:
   verbs: ["*"]
 ```
 
+- `Role` and `RoleBinding` are used for single namespaces
+- Use `ClusterRole` and `ClusterRoleBinding` for rules that apply to all  namespaces
+  - You can use `ClusterRole` to define common roles at the cluster level, and then use `RoleBinding` to bind them to specific Namespaces
 
 
+- **Admission control**
+  - This runs after authentication and authorization
+  - Enforces policies, but only for requests that will modify state (read operations are not subject to admission control)
+  - Short circuit evaluation: as soon as one admission controller rejects a request, no other admission controllers are evaluated
+  - Two types of admission controllers:
+    1. **mutating**: these check for policy compliance and can modify requests; these always run first
+    2. **validating**: these check for policy compliance but cannot modify requests
+  - Example: all new and update objects must have label `env=prod`
+    - a mutating controller can check for the label and add it if it doesn't exist
+    - a validating controller can only check the label and reject it if it doesn't exist
+  - `AlwaysPullImages` mutating controller sets `spec.containers.imagePullPolicy=Always` for all new Pods, forcing container images to always be pulled from the registry
+  - Book doesn't provide any details on how to set these up
