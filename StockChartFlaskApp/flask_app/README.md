@@ -34,3 +34,8 @@
 
 * To shut down the cluster:
   * `kubectl delete -f k8s_deploy.yml`
+
+* A ConfigMap `stockmarketconfig` has been created (within the `financefun` namespace) with the single key-value pair `data-provider: Yahoo! Finance`
+  * The container is then configured to have the value set as the environment variable `DATAPROVIDER`, and the application reads that environment variable and displays the value in the footer of the pages of the app
+
+* TODO: Next steps: Deploy to AWS

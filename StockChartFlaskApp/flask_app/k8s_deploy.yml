@@ -3,6 +3,14 @@ apiVersion: v1
 metadata:
   name: financefun
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: financefun
+  name: stockmarketconfig
+data:
+  data-provider: Yahoo! Finance
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,6 +40,12 @@ spec:
         image: kevinmatz/stockchartapp
         ports:
         - containerPort: 80
+        env:
+          - name: DATAPROVIDER
+            valueFrom:
+              configMapKeyRef:
+                name: stockmarketconfig
+                key: data-provider
 ---
 apiVersion: v1
 kind: Service
