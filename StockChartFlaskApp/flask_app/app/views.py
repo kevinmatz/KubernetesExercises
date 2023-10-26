@@ -24,5 +24,5 @@ def stock():
    plt.ylabel('Stock Price')
    plt.legend()
    plt.grid(True)
-   plt.savefig('static/stock_graph.png')  # Save the graph as a static file
+   plt.savefig('app/static/stock_graph.png')  # Save the graph as a static file
    return render_template('stock.html')
