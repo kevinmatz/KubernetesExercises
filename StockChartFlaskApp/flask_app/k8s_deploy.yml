@@ -1,6 +1,12 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: financefun
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: financefun
   name: stockchartapp
 spec:
   replicas: 3
@@ -17,6 +23,7 @@ spec:
       maxSurge: 1
   template:
     metadata:
+      namespace: financefun
       labels:
         whichapp: mystockchartapp
     spec:
@@ -29,7 +36,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: stockchartappservice            # This is the name that will be registered with DNS
+  namespace: financefun
+  name: stockchartappservice            # This is the name that will be registered with DNS on the internal network
 spec:
   type: NodePort
   ports:
@@ -43,6 +51,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: financefun
   name: cloud-loadbalancer
 spec:
   type: LoadBalancer     # If cluster is on a cloud platform, this will provision one of the cloud platform's load balancers to send traffic to this Service
