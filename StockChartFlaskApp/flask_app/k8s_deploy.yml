@@ -70,7 +70,7 @@ metadata:
 spec:
   type: LoadBalancer     # If cluster is on a cloud platform, this will provision one of the cloud platform's load balancers to send traffic to this Service
   ports:
-  - port: 9000           # The port that this Service will be listening on
+  - port: 80             # The port that this Service will be listening on
     targetPort: 80       # Forwards traffic to port 8080 on the Pods that match the selector
   selector:
     whichapp: mystockchartapp
