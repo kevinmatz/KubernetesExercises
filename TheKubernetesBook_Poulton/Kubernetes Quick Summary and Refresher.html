@@ -1,0 +1,175 @@
+<h1 id="quick-summaryrefresher-of-kubernetes-concepts">Quick
+summary/refresher of Kubernetes concepts</h1>
+<ul>
+<li>Container orchestration system
+<ul>
+<li>Lets you deploy a cluster to different cloud service providers;
+mostly platform-independent but storage, load balancers, etc. depend on
+the cloud provider</li>
+<li>Suitable for cloud-native apps composed of microservices</li>
+</ul></li>
+<li>Abbreviated as K8s</li>
+</ul>
+<p><em>Notes on key concepts from <a
+href="https://www.amazon.com/Kubernetes-Book-Nigel-Poulton/dp/1916585000">The
+Kubernetes Book, 2023 Edition</a> by Nigel Poulton:</em></p>
+<ul>
+<li>Declarative using YAML <strong>manifest</strong> files
+<ul>
+<li>Post manifest files to the API server using commands such as:
+<ul>
+<li><code>kubectl apply -f my_declarative_file.yml</code></li>
+<li>Kubernetes then makes changes to the cluster to reconcile the as-is
+(observed) state with the to-be (desired) state</li>
+<li>All requests through kubectl command or the API are subject to
+authorization and authentication</li>
+</ul></li>
+</ul></li>
+<li><strong>Nodes</strong> are the worker machines (virtual machines or
+physical servers)</li>
+<li>A <strong>Pod</strong> is the smallest deployable unit
+<ul>
+<li>One Pod runs on one Node</li>
+<li>A Pod contains one or more containers
+<ul>
+<li>Containers are usually Docker containers but other runtimes like
+<code>containerd</code> are supported</li>
+</ul></li>
+</ul></li>
+<li>A <strong>Cluster</strong> consists of one or more worker Nodes,
+where each Node may host a Pod
+<ul>
+<li>A Cluster also has a control plane (master Nodes although “master”
+terminology is no longer used) that monitor and manage the state of the
+cluster and the scheduling of Pods, perform self-healing, and expose the
+API</li>
+</ul></li>
+<li>Resources can be organized under <strong>Namespaces</strong>
+<ul>
+<li>Namespaces can have their own policies (e.g., resource quotas),
+users, and RBAC permissions</li>
+<li>Accounting can be done by Namespace</li>
+<li>Namespaces are not intended as a mechanism for strong isolation of
+“hostile” workloads</li>
+</ul></li>
+<li>A <strong>Deployment</strong> is a set of replicas of a Pod template
+(Deployments use ReplicaSets to manage the Pods; it’s best not to access
+ReplicaSets directly)
+<ul>
+<li>Specify number of Pod replicas, what container image(s) to use for
+the container(s) in the Pod, what network ports to expose, and what
+strategy and settings to use to perform rolling updates</li>
+</ul></li>
+<li><strong>Scaling</strong>
+<ul>
+<li>Update and post YAML manifest with a changed number of replicas;
+Pods get created or destroyed in order to match the desired state</li>
+<li>Various settings on how long replicas must be up and stable before
+doing the next one, etc.</li>
+</ul></li>
+<li><strong>Rollouts / rolling updates / releases</strong>
+<ul>
+<li>New container image(s)</li>
+<li>Kubernetes updates Pods by terminating then and replacing them with
+new Pods with the new container image(s)</li>
+</ul></li>
+<li><strong>Rollbacks</strong>
+<ul>
+<li>Kubernetes keeps a history of rollouts; can roll out a previous
+image (rollback is done as a rollout of the previous image)</li>
+</ul></li>
+<li><strong>Services</strong> provide a stable IP address, DNS name, and
+port as a reliable endpoint for accessing a set of Pods
+<ul>
+<li><strong>NodePort</strong> services – if an external client access a
+dedicated port on any cluster Node, it gets redirected to the Service
+node which selects a Node and redirects to it (using the
+targetPort)</li>
+<li><strong>LoadBalancer</strong> service – if deployed on cloud
+provider, allows external clients to access dedicated port on cloud
+provider’s load balancer, which distributes traffic amongst the Pods
+matching the selection criteria</li>
+</ul></li>
+<li>A <strong>Service Registry</strong> (an internal <strong>cluster
+DNS</strong> service named `kube-dns``) is provided by Kubernetes
+<ul>
+<li>All services are registered with it and assigned a stable virtual IP
+(<strong>ClusterIP</strong>), and the mapping between the service name
+and ClusterIP is added to the cluster DNS</li>
+<li>Every Pod is automatically configured to know where to find it</li>
+<li>Pods can just access the service name (e.g.,
+<code>curl myservice:8000</code>) and through a complex resolution
+mechanism, it will work and the service will redirect the request to one
+of the Pods in the Deployment managed by the Service</li>
+</ul></li>
+<li>Cloud platform load balancers are not cheap, so
+<strong>Ingress</strong> objects let you expose multiple web
+applications through a single load balancer, using routing rules
+(subdomains or paths in the URL are used to decide which service to
+route to)</li>
+<li><strong>Storage:</strong> Kubernetes supports cloud storage
+back-ends
+<ul>
+<li>A plugin (<strong>provisioner</strong>) based on the Container
+Storage Interface (CSI) is required for each type of storage
+resource</li>
+<li><strong>PersistentVolume (PV)</strong> maps to an external storage
+asset and is the access point for the volume</li>
+<li><strong>PersistentVolumeClaim (PVC)</strong> are like authorization
+tickets that Pods need to claim to access PVs</li>
+<li><strong>StorageClasses (CS)</strong> automate some of the steps</li>
+</ul></li>
+<li>Various policies (<code>ReadOnly</code>, <code>ReadWriteOnce</code>
+for access by one PVC, <code>ReadWriteMany</code> can be bound by
+multiple PVCs/Pods); <code>ReclaimPolicy</code> (delete or retain volume
+when PVC is released)</li>
+<li><strong>ConfigMaps</strong> and <strong>Secrets</strong> are
+key-value map dictionaries that hold configuration info
+<ul>
+<li>Can inject into environment variables, or can be accessed as files
+in a mounted volume, or apps can access the Kubernetes API to read
+values</li>
+<li>Secrets are intended for API keys, passwords, certificates, tokens,
+etc., but out of the box, Kubernetes does not encrypt secrets at rest or
+over the network
+<ul>
+<li>Can use third-party plugins/tools like HashiCorp Vault for better
+security</li>
+</ul></li>
+</ul></li>
+<li><strong>StatefulSets</strong> (<strong><code>sts</code></strong>)
+are a form of Deployment for operating applications that persist data in
+a database or other data store that is running on (a) Pod(s) on
+Kubernetes
+<ul>
+<li>Guarantees persistent pod names, DNS hostnames, and volume bindings
+to storage for a Pod (these attributes are the Pod’s “state” or “sticky
+ID”)</li>
+<li>StatefulSets ensure that the sticky ID attributes are persisted
+predictably even when the Pod fails and is restarted or if the Pod is
+scaled/replicated</li>
+</ul></li>
+<li><strong>API security and RBAC</strong>
+<ul>
+<li>For requests:
+<ul>
+<li>Authentication module (authN) checks if user is who they claim to be
+<ul>
+<li>Kubernetes does not have an identity database; you have to provide a
+third-party external one such as Active Directory (AD), IAM, client
+certificates, webhooks, etc.</li>
+</ul></li>
+<li>Authorization module (authZ) checks whether user has permission to
+do the requested action
+<ul>
+<li>“Least-privilege deny-by-default” so need to explicitly grant all
+needed permissions</li>
+</ul></li>
+<li>Admission control then checks/applies further policies</li>
+</ul></li>
+</ul></li>
+<li><strong>Security</strong>
+<ul>
+<li>Complicated, hire an expert!</li>
+</ul></li>
+</ul>
